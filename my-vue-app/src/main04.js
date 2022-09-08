@@ -1,4 +1,4 @@
-//3D物体缩放旋转
+//3D物体移动
 import { createApp } from "vue";
 import "./style.css";
 import * as THREE from "three";
@@ -23,13 +23,6 @@ const cube = new THREE.Mesh(geometry, material);
 //物体移动
 // cube.position.set(10, 5, 5);
 cube.position.x = 10;
-//物体缩放scale
-cube.scale.set(3, 2, 1);
-//物体旋转
-// cube.rotation.x = 0.45;
-//Math.PI = 180度
-cube.rotation.set(Math.PI / 4, 0, 5, "ZXY");
-//设置相机高度
 camera.position.z = 5;
 scene.add(cube);
 //
