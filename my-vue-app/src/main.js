@@ -1,4 +1,4 @@
-//Gsap动画库
+//根据尺寸变化实现自适应画面
 import { createApp } from "vue";
 import "./style.css";
 import * as THREE from "three";
@@ -42,8 +42,11 @@ const axesHelper = new THREE.AxesHelper(5);
 scene.add(axesHelper);
 //设置时钟
 const clock = new THREE.Clock();
+
 //创建控制器
 const controls = new OrbitControls(camera, renderer.domElement);
+//设置控制器阻尼，让其更真实
+controls.enableDamping = true;
 //摄像头位置属性
 camera.position.set(0, 20, 10);
 controls.update();
@@ -53,6 +56,7 @@ function animate(time) {
   requestAnimationFrame(animate);
   //动态移动
   // required if controls.enableDamping or controls.autoRotate are set to true
+  //更新控制器，设置阻尼必须开
   controls.update();
   //
   renderer.render(scene, camera);
@@ -64,11 +68,11 @@ let animateGSAP = gsap.to(cube.position, {
   duration: 2,
   ease: "power1.inOut",
   //设置重复次数，无限次就是-1
-  repeat: 2,
+  repeat: -1,
   // 往返运动
   yoyo: true,
   //延迟多久运动
-  delay: 2,
+  delay: 0,
   // onComplete: () => {
   //   console.log("动画完成");
   // },
@@ -76,11 +80,23 @@ let animateGSAP = gsap.to(cube.position, {
   //   console.log("动画开始");
   // },
 });
-window.addEventListener("dblclick", () => {
-  if (animateGSAP.isActive()) {
-    animateGSAP.pause();
-  } else {
-    animateGSAP.resume();
-  }
+// window.addEventListener("dblclick", () => {
+//   if (animateGSAP.isActive()) {
+//     animateGSAP.pause();
+//   } else {
+//     animateGSAP.resume();
+//   }
+// });
+window.addEventListener("resize", () => {
+  console.log("画面变化");
+  // 更新摄像头
+  camera.aspect = window.innerWidth / window.innerHeight;
+  // 更新摄像机的投影矩阵
+  camera.updateProjectionMatrix();
+  //更新渲染器
+  renderer.setSize(indow.innerWidth, window.innerHeight);
+  //设置渲染器像素比
+  renderer.setPixelRatio(window.devicePixelRatio);
 });
+
 createApp(App).mount("#app");
