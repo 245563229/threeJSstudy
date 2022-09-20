@@ -1,4 +1,4 @@
-//BufferGeometry设置定点创建矩形
+//应用图形用户改变变量
 import { createApp } from "vue";
 import "./style.css";
 import * as THREE from "three";
@@ -21,9 +21,19 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 const geometry = new THREE.BoxGeometry(1, 1, 1);
 //设置材质
 const material = new THREE.MeshBasicMaterial({ color: 0x4aa5f0 });
-// const vertices = Float32Array([-1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0]);
+const cube = new THREE.Mesh(geometry, material);
+//物体移动
+// cube.position.set(10, 5, 5);
+cube.position.x = 5;
+//物体缩放scale
+cube.scale.set(3, 2, 1);
+//物体旋转
+// cube.rotation.x = 0.45;
+//Math.PI = 180度
+cube.rotation.set(Math.PI / 4, 0, 5, "ZXY");
 //设置相机高度
 camera.position.z = 5;
+scene.add(cube);
 //
 document.body.appendChild(renderer.domElement);
 // renderer.render(scene, camera);
@@ -69,6 +79,7 @@ window.addEventListener("dblclick", () => {
 //初始化gui
 const gui = new dat.GUI();
 gui
+  .add(cube.position, "x")
   .min(0)
   .max(5)
   .step(0.01)
@@ -79,7 +90,24 @@ gui
   .onFinishChange((val) => {
     console.log("完全停下来触发", val);
   });
+//修改物体颜色
+const colorSet = {
+  color: "#FFF",
+  firstFun: () => {
+    //让物体运动
+    gsap.to(cube.position, { x: 0, duration: 2, yoyo: true, repeat: -1 });
+  },
+};
+gui.addColor(colorSet, "color").onChange((val) => {
+  console.log("更改颜色", val);
+  cube.material.color.set(val);
+});
+//设置选项框
+gui.add(cube, "visible").name("是否显示");
 //设置按钮触发事件
 gui.add(colorSet, "firstFun").name("物体运动");
 //设置立方体
+var folder = gui.addFolder("设置立方体");
+// wireframe线框
+folder.add(cube.material, "wireframe");
 createApp(App).mount("#app");

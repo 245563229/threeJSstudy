@@ -1,10 +1,10 @@
-//BufferGeometry设置定点创建矩形
+//根据尺寸变化实现自适应画面
 import { createApp } from "vue";
 import "./style.css";
 import * as THREE from "three";
 import App from "./App.vue";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import * as dat from "dat.gui";
+// 导入动画库
 import gsap from "gsap";
 // 创建相机
 const camera = new THREE.PerspectiveCamera(
@@ -21,9 +21,19 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 const geometry = new THREE.BoxGeometry(1, 1, 1);
 //设置材质
 const material = new THREE.MeshBasicMaterial({ color: 0x4aa5f0 });
-// const vertices = Float32Array([-1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0]);
+const cube = new THREE.Mesh(geometry, material);
+//物体移动
+// cube.position.set(10, 5, 5);
+cube.position.x = 10;
+//物体缩放scale
+cube.scale.set(3, 2, 1);
+//物体旋转
+// cube.rotation.x = 0.45;
+//Math.PI = 180度
+cube.rotation.set(Math.PI / 4, 0, 5, "ZXY");
 //设置相机高度
 camera.position.z = 5;
+scene.add(cube);
 //
 document.body.appendChild(renderer.domElement);
 // renderer.render(scene, camera);
@@ -41,11 +51,42 @@ controls.enableDamping = true;
 camera.position.set(0, 20, 10);
 controls.update();
 function animate(time) {
+  // let t = (time / 1000) % 5;
+  // cube.position.x = t * 1;
   requestAnimationFrame(animate);
+  //动态移动
+  // required if controls.enableDamping or controls.autoRotate are set to true
+  //更新控制器，设置阻尼必须开
+  controls.update();
+  //
   renderer.render(scene, camera);
 }
 animate();
 //gasp设置动画
+let animateGSAP = gsap.to(cube.position, {
+  x: 5,
+  duration: 2,
+  ease: "power1.inOut",
+  //设置重复次数，无限次就是-1
+  repeat: -1,
+  // 往返运动
+  yoyo: true,
+  //延迟多久运动
+  delay: 0,
+  // onComplete: () => {
+  //   console.log("动画完成");
+  // },
+  // onStart: () => {
+  //   console.log("动画开始");
+  // },
+});
+// window.addEventListener("dblclick", () => {
+//   if (animateGSAP.isActive()) {
+//     animateGSAP.pause();
+//   } else {
+//     animateGSAP.resume();
+//   }
+// });
 window.addEventListener("resize", () => {
   console.log("画面变化");
   // 更新摄像头
@@ -53,33 +94,9 @@ window.addEventListener("resize", () => {
   // 更新摄像机的投影矩阵
   camera.updateProjectionMatrix();
   //更新渲染器
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(indow.innerWidth, window.innerHeight);
   //设置渲染器像素比
   renderer.setPixelRatio(window.devicePixelRatio);
 });
-window.addEventListener("dblclick", () => {
-  //双击控制屏幕全屏
-  const fullScreenElement = document.fullscreenElement;
-  if (fullScreenElement) {
-    document.exitFullscreen();
-  } else {
-    renderer.domElement.requestFullscreen();
-  }
-});
-//初始化gui
-const gui = new dat.GUI();
-gui
-  .min(0)
-  .max(5)
-  .step(0.01)
-  .name("移动x轴")
-  .onChange((val) => {
-    console.log("被修改为", val);
-  })
-  .onFinishChange((val) => {
-    console.log("完全停下来触发", val);
-  });
-//设置按钮触发事件
-gui.add(colorSet, "firstFun").name("物体运动");
-//设置立方体
+
 createApp(App).mount("#app");
